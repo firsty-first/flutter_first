@@ -5,89 +5,79 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
-void main() {
-  runApp(MyApp());
+import 'package:flutter/material.dart';
+
+void main() => runApp(MyApp());
+
+class Athlete {
+  final String name;
+  final String level;
+
+  Athlete({required this.name, required this.level});
 }
 
 class MyApp extends StatelessWidget {
+  final List<Athlete> athletes = [
+    Athlete(name: 'Abhishek', level: 'Basic'),
+    Athlete(name: 'Tarun', level: 'Intermediate'),
+    Athlete(name: 'Mohan', level: 'Advanced'),
+    Athlete(name: 'Mohan', level: 'Intermediate'),
+    Athlete(name: 'Raja', level: 'Basic'),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: MyHomePage(),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  File? _image;
-
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.getImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      _cropImage(File(pickedFile.path));
-    }
-  }
-
-  Future<void> _cropImage(File image) async {
-    final cropper = ImageCropper();
-    File? croppedImage = await cropper.cropImage(
-      sourcePath: image.path,
-      aspectRatioPresets: [
-        CropAspectRatioPreset.square,
-        CropAspectRatioPreset.ratio3x2,
-        CropAspectRatioPreset.original,
-        CropAspectRatioPreset.ratio4x3,
-        CropAspectRatioPreset.ratio16x9,
-      ],
-      androidUiSettings: AndroidUiSettings(
-        toolbarTitle: 'Crop Image',
-        toolbarColor: Colors.deepOrange,
-        toolbarWidgetColor: Colors.white,
-        initAspectRatio: CropAspectRatioPreset.original,
-        lockAspectRatio: false,
-      ),
-    );
-
-    if (croppedImage != null) {
-      setState(() {
-        _image = croppedImage;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Image Picker and Cropper'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: _pickImage,
-              child: Text('Pick Image'),
-            ),
-            SizedBox(height: 20),
-            _image != null
-                ? Image.file(
-              _image!,
-              height: 150,
-              width: 150,
-            )
-                : Container(),
-          ],
+      home: Scaffold(
+        body: ListView(
+          scrollDirection: Axis.vertical,
+          children: _buildLevels(),
         ),
       ),
     );
+  }
+
+  List<Widget> _buildLevels() {
+    List<Widget> levelWidgets = [];
+
+    Set<String> uniqueLevels = athletes.map((athlete) => athlete.level).toSet();
+
+    for (String level in uniqueLevels) {
+      List<Athlete> athletesByLevel =
+      athletes.where((athlete) => athlete.level == level).toList();
+
+      levelWidgets.add(
+        Card(
+          elevation: 3.0,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Level: $level',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 8.0),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: athletesByLevel
+                      .map((athlete) => Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Name: ${athlete.name}'),
+                  ))
+                      .toList(),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return levelWidgets;
   }
 }
